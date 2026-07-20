@@ -1,0 +1,33 @@
+from collections import deque
+
+class Solution:
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        n = len(edges)
+        indegree = [0] * (n + 1)
+
+        # Create the mapping
+        adj = [[] for _ in range(n+1)]
+        for u, v in edges:
+            adj[u].append(v)
+            adj[v].append(u)
+            indegree[u] += 1
+            indegree[v] += 1
+
+        # Starting from the leaf nodes where indegree=1 and put them in a queue
+        q = deque()
+        for i in range(1, n + 1):
+            if indegree[i] == 1:
+                q.append(i)
+        
+        while q:
+            node = q.popleft()
+            indegree[node] -= 1
+            for neighbor in adj[node]:
+                indegree[neighbor] -= 1
+                if indegree[neighbor] == 1:
+                    q.append(neighbor)
+        
+        for u, v in reversed(edges):
+            if indegree[u] == 2 and indegree[v] > 0:
+                return [u, v]
+        return []
